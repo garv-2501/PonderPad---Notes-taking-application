@@ -1,0 +1,48 @@
+<header
+  class="bg-gray-50 dashboard-header text-gray-800 border-b border-gray-300 w-full"
+>
+  <nav class="px-6 py-3 flex justify-between items-center w-full">
+    <div class="flex items-center">
+      <!-- Toggle Icon for Menu -->
+      <button
+        class="header-toggle p-2 focus:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 hover:bg-green-100 rounded-lg"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-6 h-6"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+          />
+        </svg>
+      </button>
+
+      <!-- Logo -->
+      <a href="/" class="logo-dashboard text-2xl ml-6">PonderPad</a>
+    </div>
+
+    <!-- Logout Button and Right User Icon -->
+    <div class="flex items-center">
+      <!-- Logout Button -->
+      <a
+        href="/logout"
+        class="logout-button mr-7 px-4 py-2 text-xl text-gray-800 font-semibold rounded cursor-pointer"
+      >
+        Logout
+      </a>
+      <!-- Profile Photo -->
+      <img
+        id="profile-image"
+        src="URL_OF_THE_USER_IMAGE_FROM_GOOGLE_ACCOUNT"
+        alt="User"
+        class="h-8 w-8 rounded-full mr-4"
+      />
+    </div>
+  </nav>
+</header>

@@ -21,6 +21,7 @@
     "express-session": "^1.17.3",
     "method-override": "^3.0.0",
     "mongoose": "^8.0.2",
+    "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "postcss": "^8.4.31",
     "postcss-cli": "^10.1.0",

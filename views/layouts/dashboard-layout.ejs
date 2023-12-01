@@ -12,27 +12,18 @@
         font-family: "Signika";
         src: url("/fonts/Signika.ttf") format("truetype");
       }
-      header {
-        font-family: "Signika", sans-serif;
-      }
-      body {
-        font-family: "Signika", sans-serif;
-      }
-      footer {
+      .dashboard-header {
         font-family: "Signika", sans-serif;
       }
     </style>
   </head>
   <body>
-    <div class="">
-      <!-- Header of the page -->
-      <%- include("../components/header.ejs") %>
+    <div class="flex flex-col h-screen">
+      <!-- Header -->
+      <%- include("../components/dashboard-header.ejs") %>
 
-      <!-- Main body that changes -->
-      <%- body %>
+      <!-- Main body container -->
+      <div class="flex flex-1 overflow-hidden"><%- body %></div>
     </div>
-
-    <!-- Footer of the page -->
-    <%- include("../components/footer.ejs") %>
   </body>
 </html>

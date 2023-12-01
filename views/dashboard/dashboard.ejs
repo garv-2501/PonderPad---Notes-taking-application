@@ -1,0 +1,28 @@
+<body class="bg-gray-50">
+  <div class="flex h-full overflow-hidden">
+    <!-- Sidebar -->
+    <%- include("./sidebar.ejs") %>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-y-auto p-10">
+      <!-- Search Bar -->
+      <form class="flex justify-center mb-6" role="search" method="post" action="/dashboard/search">
+        <input
+          type="search"
+          placeholder="Search..."
+          class="w-full max-w-xl px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-400"
+        />
+      </form>
+
+      <!-- Cards Section -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Example Card -->
+        <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl focus:shadow-2xl transition duration-300 ease-in-out">
+          <h3 class="text-xl font-medium text-black mb-2">Card Title</h3>
+          <p class="text-gray-500">Card Description</p>
+        </div>
+
+        <!-- More cards... -->
+      </div>
+  </div>
+</body>
