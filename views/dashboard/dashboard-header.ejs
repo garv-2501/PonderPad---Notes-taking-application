@@ -3,9 +3,9 @@
 >
   <nav class="px-6 py-3 flex justify-between items-center w-full">
     <div class="flex items-center">
-      <!-- Toggle Icon for Menu -->
+      <!-- Toggle Icon for Menu
       <button
-        class="header-toggle p-2 focus:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 hover:bg-green-100 rounded-lg"
+        class="header-toggle p-2 focus:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 hover:bg-blue-100 rounded-lg"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -21,10 +21,12 @@
             d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
           />
         </svg>
-      </button>
+      </button> -->
 
       <!-- Logo -->
-      <a href="/" class="logo-dashboard text-2xl ml-6">PonderPad</a>
+      <a href="/dashboard" class="logo-dashboard text-2xl ml-6 font-semibold"
+        >PonderPad</a
+      >
     </div>
 
     <!-- Logout Button and Right User Icon -->
@@ -32,14 +34,14 @@
       <!-- Logout Button -->
       <a
         href="/logout"
-        class="logout-button mr-7 px-4 py-2 text-xl text-gray-800 font-semibold rounded cursor-pointer"
+        class="logout-button mr-4 px-4 py-2 text-xl text-gray-800 font-semibold rounded cursor-pointer"
       >
         Logout
       </a>
       <!-- Profile Photo -->
       <img
         id="profile-image"
-        src="URL_OF_THE_USER_IMAGE_FROM_GOOGLE_ACCOUNT"
+        src="<%= userProfilePhoto %>"
         alt="User"
         class="h-8 w-8 rounded-full mr-4"
       />

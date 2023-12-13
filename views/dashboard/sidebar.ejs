@@ -5,7 +5,7 @@
     <!-- Home Link -->
     <a
       href="/dashboard"
-      class="flex items-center px-4 py-2 text-gray-700 rounded-lg bg-green-100 outline-none ring-2 ring-green-300 border-green-400"
+      class="<%= activePage === 'dashboard' ? 'bg-blue-200 ring-2 ring-blue-300 border-blue-400' : 'text-gray-700' %> flex items-center px-4 py-2 rounded-lg hover:bg-blue-100"
     >
       <span class="flex items-center">
         <svg
@@ -30,7 +30,7 @@
     <!-- Create Link -->
     <a
       href="/dashboard/create"
-      class="flex items-center px-4 py-2 text-gray-700 rounded-lg focus:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500 hover:bg-green-100"
+      class="<%= activePage === 'create' ? 'bg-blue-200 ring-2 ring-blue-300 border-blue-400' : 'text-gray-700' %> flex items-center px-4 py-2 rounded-lg hover:bg-blue-100"
     >
       <span class="flex items-center">
         <svg

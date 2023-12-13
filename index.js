@@ -19,6 +19,8 @@ const mongoose = require("mongoose");
 // User model
 const User = require("./server/models/User");
 
+const methodOverride = require("method-override");
+
 app.use(expressLayouts);
 app.set("layout", "./layouts/main-layout");
 app.set("view engine", "ejs");
@@ -35,15 +37,6 @@ app.use(
   })
 );
 
-// check the login status
-isLoggedIn = (req, res, next) => {
-  if (req.user) {
-    next();
-  } else {
-    return res.status(401).send("You must be logged in to view this page");
-  }
-};
-
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -52,8 +45,20 @@ app.use(express.json());
 
 app.use(express.static("public"));
 
+// method override
+app.use(methodOverride("_method"));
+
 // connect to database
 connectDB();
+
+// check the login status
+isLoggedIn = (req, res, next) => {
+  if (req.user) {
+    next();
+  } else {
+    return res.status(401).send("You must be logged in to view this page");
+  }
+};
 
 // ------------------ ROUTES ------------------ //
 
@@ -75,14 +80,153 @@ app.get("/about", (req, res) => {
   });
 });
 
-// Routes for the Dashboard
-app.get("/dashboard", isLoggedIn, (req, res) => {
-  res.render("./dashboard/dashboard", {
+// Routes For the Dashboard
+app.get("/dashboard", isLoggedIn, async (req, res, next) => {
+  try {
+    const notes = await Note.find({
+      user: new mongoose.Types.ObjectId(req.user._id),
+    }).sort({ createdAt: "desc" });
+
+    res.render("./dashboard/dashboard", {
+      layout: "./layouts/dashboard-layout",
+      page: "dashboard",
+      title: "Dashboard",
+      description: "Your dashboard description here...",
+      userProfilePhoto: req.user.profilePhoto,
+      activePage: "dashboard",
+      notes: notes,
+      current: 1,
+      pages: 1, // Since pagination is not being used
+    });
+  } catch (err) {
+    console.error("Error fetching notes: ", err);
+    res.status(500).send("Error fetching notes");
+  }
+});
+
+// Routes For the Notes (To render the notes)
+app.get("/dashboard/edit/:id", isLoggedIn, async (req, res, next) => {
+  try {
+    const note = await Note.findById({ _id: req.params.id })
+      .where({ user: req.user.id })
+      .lean();
+    if (note) {
+      res.render("dashboard/edit-note", {
+        layout: "./layouts/dashboard-layout",
+        page: "dashboard",
+        title: "Edit Note",
+        description: "Edit your note here...",
+        activePage: "dashboard",
+        userProfilePhoto: req.user.profilePhoto,
+        noteID: req.params.id,
+        note: note,
+      });
+    }
+  } catch (err) {
+    console.error("Error fetching note: ", err);
+    res.status(500).send("Error fetching note");
+  }
+});
+
+// Routes For the Notes (To update the notes)
+app.put("/dashboard/edit/:id", isLoggedIn, async (req, res, next) => {
+  try {
+    await Note.findByIdAndUpdate(
+      { _id: req.params.id },
+      {
+        title: req.body.title,
+        content: req.body.content,
+      }
+    ).where({ user: req.user.id });
+
+    res.redirect("/dashboard");
+  } catch (err) {
+    console.error("Error fetching note: ", err);
+    res.status(500).send("Error fetching note");
+  }
+});
+
+// Routes For the Notes (To delete the notes)
+app.delete("/dashboard/delete/:id", isLoggedIn, async (req, res, next) => {
+  try {
+    await Note.deleteOne({ _id: req.params.id }).where({
+      user: req.user.id,
+    });
+
+    res.redirect("/dashboard");
+  } catch (err) {
+    console.error("Error fetching note: ", err);
+    res.status(500).send("Error fetching note");
+  }
+});
+
+// Routes For the Notes (To create the notes)
+app.get("/dashboard/create", isLoggedIn, (req, res) => {
+  res.render("dashboard/create-note", {
     layout: "./layouts/dashboard-layout",
     page: "dashboard",
-    title: "Dashboard",
-    description: "Your dashboard description here...",
+    title: "Create Note",
+    description: "Create your note here...",
+    activePage: "create",
+    userProfilePhoto: req.user.profilePhoto,
   });
+});
+app.post("/dashboard/create", isLoggedIn, async (req, res) => {
+  try {
+    await Note.create({
+      title: req.body.title,
+      content: req.body.content,
+      user: req.user.id,
+    });
+
+    res.redirect("/dashboard");
+  } catch (err) {
+    console.error("Error creating note: ", err);
+    res.status(500).send("Error creating note");
+  }
+});
+
+// Routes For the Notes (To search the notes)
+app.get("/dashboard/search", isLoggedIn, async (req, res) => {
+  try {
+    res.render("./dashboard/search", {
+      layout: "./layouts/dashboard-layout",
+      page: "dashboard",
+      title: "Dashboard",
+      description: "Your dashboard description here...",
+      userProfilePhoto: req.user.profilePhoto,
+      activePage: "dashboard",
+      notes: notes,
+      searchResults: [],
+    });
+  } catch (err) {
+    console.error("Error fetching notes: ", err);
+    res.status(500).send("Error fetching notes");
+  }
+});
+
+app.post("/dashboard/search", isLoggedIn, async (req, res) => {
+  try {
+    const notes = await Note.find({
+      user: new mongoose.Types.ObjectId(req.user._id),
+      $text: { $search: req.body.q },
+    }).sort({ createdAt: "desc" });
+
+    res.render("./dashboard/dashboard", {
+      layout: "./layouts/dashboard-layout",
+      page: "dashboard",
+      title: "Dashboard",
+      description: "Your dashboard description here...",
+      userProfilePhoto: req.user.profilePhoto,
+      activePage: "dashboard",
+      notes: notes,
+      current: 1,
+      pages: 1, // Since pagination is not being used
+    });
+  } catch (err) {
+    console.error("Error fetching notes: ", err);
+    res.status(500).send("Error fetching notes");
+  }
 });
 
 // ------------------ AUTHENTICATION ------------------ //

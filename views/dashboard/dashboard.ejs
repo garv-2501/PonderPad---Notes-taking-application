@@ -6,23 +6,56 @@
     <!-- Main Content -->
     <div class="flex-1 overflow-y-auto p-10">
       <!-- Search Bar -->
-      <form class="flex justify-center mb-6" role="search" method="post" action="/dashboard/search">
+      <form
+        class="flex justify-left mb-6"
+        role="search"
+        method="post"
+        action="/dashboard/search"
+      >
         <input
           type="search"
           placeholder="Search..."
-          class="w-full max-w-xl px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-400"
+          class="w-full max-w-xl px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400"
         />
       </form>
 
-      <!-- Cards Section -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Example Card -->
-        <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl focus:shadow-2xl transition duration-300 ease-in-out">
-          <h3 class="text-xl font-medium text-black mb-2">Card Title</h3>
-          <p class="text-gray-500">Card Description</p>
+      <!-- ------------------------- NOTES  ------------------------- -->
+      <div class="notes grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% if (notes.length > 0) { notes.forEach((note) => { %>
+        <div
+          class="bg-white rounded-lg shadow-lg hover:shadow-2xl transition duration-300 ease-in-out overflow-hidden"
+        >
+          <a href="/dashboard/edit/<%= note._id %>" class="cursor-pointer">
+            <!-- Top section with different background color for the title -->
+            <div class="bg-blue-200 p-4">
+              <h3 class="text-xl font-semibold text-black line-clamp-1">
+                <%= note.title %>
+              </h3>
+            </div>
+            <!-- Bottom section for content and date -->
+            <div class="p-4">
+              <p class="text-gray-600 mb-4 line-clamp-3"><%= note.content %></p>
+              <p class="text-gray-400 text-sm">
+                Created on: <%= new
+                Date(note.createdAt).toLocaleDateString("en-US", { year:
+                'numeric', month: 'long', day: 'numeric' }) %>
+              </p>
+            </div>
+          </a>
         </div>
-
-        <!-- More cards... -->
+        <% }); } else { %>
+        <div class="col-span-full">
+          <div class="text-center mt-10">
+            <h3 class="text-xl font-medium text-black mb-2">
+              No notes found :(
+            </h3>
+            <p class="text-gray-500">
+              You can create some notes using the create button on the sidebar!
+            </p>
+          </div>
+        </div>
+        <% } %>
       </div>
+    </div>
   </div>
 </body>
