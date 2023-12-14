@@ -70,9 +70,13 @@ PonderPad/
    SESSION_SECRET=cheese
    ```
 
-   - Sign up for MongoDB Atlas and obtain your `MONGO_URI`.
-   - Set up Google OAuth credentials to get `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_CALLBACK_URL`.
-   - Get your API key from [API Ninjas](https://api-ninjas.com/api/quotes) for `QUOTEAPI`.
+   Detailed instructions for each are as follows:
+
+   - **MONGO_URI**: Sign up or log in to MongoDB Atlas, create or select a cluster, click on 'Connect', then 'Connect your application', and use the provided connection string, replacing `<password>` with your database user's password.
+   - **GOOGLE_CLIENT_ID & GOOGLE_CLIENT_SECRET**: Go to Google Developers Console, create or select a project, go to 'Credentials', create 'OAuth client ID', set up the consent screen, and use the credentials provided.
+   - **GOOGLE_CALLBACK_URL**: Set this to `http://localhost:3000/google/callback` for local development.
+   - **QUOTEAPI**: Sign up at API Ninjas to get your API key for accessing the Quotes API.
+   - **SESSION_SECRET**: Can be any string (e.g., `cheese`); use a secure, random string for production.
 
 4. **Run the Application:**
    ```
