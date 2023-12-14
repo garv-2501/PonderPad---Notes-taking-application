@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
+
+// Disabling 'strictQuery' for Mongoose. This affects the way Mongoose handles
+// certain query operations, providing more flexibility but less strictness.
 mongoose.set("strictQuery", false);
+
+// Defining an asynchronous function to connect to MongoDB
 
 const connectDB = async () => {
   try {

@@ -1,57 +1,59 @@
+// Load environment variables from .env file
 require("dotenv").config();
 
+// Import required modules
 const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
-const app = express();
-const port = process.env.PORT || 3000;
-
-// databasse connection
-const connectDB = require("./server/config/database");
-
-// session and passport
 const session = require("express-session");
 const passport = require("passport");
 const MongoStore = require("connect-mongo");
-
-// For the notes in the dashboard
-const Note = require("./server/models/Note");
+const methodOverride = require("method-override");
 const mongoose = require("mongoose");
-// User model
+
+// Import database configuration and models
+const connectDB = require("./server/config/database");
+const Note = require("./server/models/Note");
 const User = require("./server/models/User");
 
-const methodOverride = require("method-override");
+// Initialize Express application
+const app = express();
+const port = process.env.PORT || 3000;
 
+// Apply EJS layouts and set view engine
 app.use(expressLayouts);
 app.set("layout", "./layouts/main-layout");
 app.set("view engine", "ejs");
 
-// session
+// Configure session with MongoDB store
 app.use(
   session({
-    secret: "keyboard cat",
+    secret: "keyboard cat", // Secret for session encryption (should be in .env)
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: process.env.MONGO_URI,
+      mongoUrl: process.env.MONGO_URI, // MongoDB URI for session store
     }),
   })
 );
 
+// Initialize Passport for authentication
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Enable parsing of request bodies
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// Serve static files from the 'public' directory
 app.use(express.static("public"));
 
-// method override
+// Enable HTTP method override for forms
 app.use(methodOverride("_method"));
 
-// connect to database
+// Connect to the database
 connectDB();
 
-// check the login status
+// Middleware to check login status
 isLoggedIn = (req, res, next) => {
   if (req.user) {
     next();
@@ -60,10 +62,13 @@ isLoggedIn = (req, res, next) => {
   }
 };
 
-// ------------------ ROUTES ------------------ //
+// ----------------------------------------------------------- //
+// ------------------------- ROUTES -------------------------- //
+// ----------------------------------------------------------- //
 
-// Routes For the Home Page
+// Route for Home Page
 app.get("/", (req, res) => {
+  // Render home page with specific layout and data
   res.render("./pages/home", {
     page: "home",
     title: "PonderPad - Notes taking application",
@@ -71,17 +76,52 @@ app.get("/", (req, res) => {
       "PonderPad is an open-source notes taking application with a simple and intuitive design. Sign up for free and start taking notes today!",
   });
 });
-app.get("/about", (req, res) => {
-  res.render("./pages/about", {
-    page: "about",
-    title: "About PonderPad",
-    description:
-      "PonderPad is an open-source notes taking application with a simple and intuitive design. Sign up for free and start taking notes today!",
-  });
+
+// Route for About Page
+app.get("/about", async (req, res) => {
+  // Fetch a quote from an external API for the about page
+  const category = "happiness"; // or any other category you prefer
+  const apiKey = process.env.QUOTEAPI; // Load API key from .env file
+
+  try {
+    const response = await fetch(
+      `https://api.api-ninjas.com/v1/quotes?category=${category}`,
+      {
+        headers: {
+          "X-Api-Key": apiKey,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch quote");
+    }
+
+    const quoteData = await response.json();
+    // Render about page with quote data
+    res.render("./pages/about", {
+      page: "about",
+      title: "About PonderPad",
+      description:
+        "PonderPad is an open-source notes taking application with a simple and intuitive design. Sign up for free and start taking notes today!",
+      quote: quoteData[0], // Send the first quote to the template
+    });
+  } catch (error) {
+    console.error("Error fetching quote:", error);
+    // Render the page without a quote in case of an error
+    res.render("./pages/about", {
+      page: "about",
+      title: "About PonderPad",
+      description:
+        "PonderPad is an open-source notes taking application with a simple and intuitive design. Sign up for free and start taking notes today!",
+      quote: null,
+    });
+  }
 });
 
-// Routes For the Dashboard
+// Routes for Dashboard
 app.get("/dashboard", isLoggedIn, async (req, res, next) => {
+  // Fetch notes for the logged-in user and display them on the dashboard
   try {
     const notes = await Note.find({
       user: new mongoose.Types.ObjectId(req.user._id),
@@ -104,8 +144,9 @@ app.get("/dashboard", isLoggedIn, async (req, res, next) => {
   }
 });
 
-// Routes For the Notes (To render the notes)
+// Route to Edit a Note
 app.get("/dashboard/edit/:id", isLoggedIn, async (req, res, next) => {
+  // Fetch a specific note for editing
   try {
     const note = await Note.findById({ _id: req.params.id })
       .where({ user: req.user.id })
@@ -128,8 +169,9 @@ app.get("/dashboard/edit/:id", isLoggedIn, async (req, res, next) => {
   }
 });
 
-// Routes For the Notes (To update the notes)
+// Route to Update a Note
 app.put("/dashboard/edit/:id", isLoggedIn, async (req, res, next) => {
+  // Handle note update logic
   try {
     await Note.findByIdAndUpdate(
       { _id: req.params.id },
@@ -141,12 +183,12 @@ app.put("/dashboard/edit/:id", isLoggedIn, async (req, res, next) => {
 
     res.redirect("/dashboard");
   } catch (err) {
-    console.error("Error fetching note: ", err);
-    res.status(500).send("Error fetching note");
+    console.error("Error updating note: ", err);
+    res.status(500).send("Error updating note");
   }
 });
 
-// Routes For the Notes (To delete the notes)
+// Route to Delete a Note
 app.delete("/dashboard/delete/:id", isLoggedIn, async (req, res, next) => {
   try {
     await Note.deleteOne({ _id: req.params.id }).where({
@@ -160,7 +202,7 @@ app.delete("/dashboard/delete/:id", isLoggedIn, async (req, res, next) => {
   }
 });
 
-// Routes For the Notes (To create the notes)
+// Route to Create a Note
 app.get("/dashboard/create", isLoggedIn, (req, res) => {
   res.render("dashboard/create-note", {
     layout: "./layouts/dashboard-layout",
@@ -186,7 +228,7 @@ app.post("/dashboard/create", isLoggedIn, async (req, res) => {
   }
 });
 
-// Routes For the Notes (To search the notes)
+// Route to Search for a Note
 app.get("/dashboard/search", isLoggedIn, async (req, res) => {
   try {
     res.render("./dashboard/search", {
@@ -196,8 +238,7 @@ app.get("/dashboard/search", isLoggedIn, async (req, res) => {
       description: "Your dashboard description here...",
       userProfilePhoto: req.user.profilePhoto,
       activePage: "dashboard",
-      notes: notes,
-      searchResults: [],
+      searchResults: "",
     });
   } catch (err) {
     console.error("Error fetching notes: ", err);
@@ -205,23 +246,27 @@ app.get("/dashboard/search", isLoggedIn, async (req, res) => {
   }
 });
 
+// Route to Search for a Note (POST)
 app.post("/dashboard/search", isLoggedIn, async (req, res) => {
   try {
-    const notes = await Note.find({
-      user: new mongoose.Types.ObjectId(req.user._id),
-      $text: { $search: req.body.q },
-    }).sort({ createdAt: "desc" });
+    let searchInput = req.body.searchInput;
+    const searchNoSpecialChars = searchInput.replace(/[^a-zA-Z0-9 ]/g, "");
 
-    res.render("./dashboard/dashboard", {
+    const searchResults = await Note.find({
+      $or: [
+        { title: { $regex: new RegExp(searchNoSpecialChars, "i") } },
+        { body: { $regex: new RegExp(searchNoSpecialChars, "i") } },
+      ],
+    }).where({ user: req.user.id });
+
+    res.render("./dashboard/search", {
       layout: "./layouts/dashboard-layout",
       page: "dashboard",
       title: "Dashboard",
       description: "Your dashboard description here...",
       userProfilePhoto: req.user.profilePhoto,
       activePage: "dashboard",
-      notes: notes,
-      current: 1,
-      pages: 1, // Since pagination is not being used
+      searchResults: searchResults,
     });
   } catch (err) {
     console.error("Error fetching notes: ", err);
@@ -229,20 +274,28 @@ app.post("/dashboard/search", isLoggedIn, async (req, res) => {
   }
 });
 
-// ------------------ AUTHENTICATION ------------------ //
+// ----------------------------------------------------------- //
+// ---------------------- AUTHENTICATION --------------------- //
+// ----------------------------------------------------------- //
 
+// Import Google OAuth2.0 Strategy from passport-google-oauth20
 var GoogleStrategy = require("passport-google-oauth20").Strategy;
+
+// Configuring Passport to use Google OAuth 2.0
 passport.use(
   new GoogleStrategy(
     {
+      // Configuration with Google Client ID, Secret, and Callback URL from .env
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
     },
     async (accessToken, refreshToken, profile, cb) => {
+      // Callback function to handle user profile after authentication
       try {
         let user = await User.findOne({ googleId: profile.id });
         if (!user) {
+          // Create a new user if not found in the database
           user = await User.create({
             googleId: profile.id,
             displayName: profile.displayName,
@@ -260,21 +313,24 @@ passport.use(
   )
 );
 
+// Route for initiating Google Authentication
 app.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["email", "profile"] })
 );
 
+// Route for Google OAuth callback
 app.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "/",
-    successRedirect: "/dashboard",
+    failureRedirect: "/", // Redirect to home page on failure
+    successRedirect: "/dashboard", // Redirect to dashboard on success
   })
 );
 
-// Logout
+// Route for Logout
 app.get("/logout", (req, res) => {
+  // Destroying session to log out user
   req.session.destroy((err) => {
     if (err) {
       console.log(err);
@@ -285,11 +341,12 @@ app.get("/logout", (req, res) => {
   });
 });
 
-// Get data from the user
+// Serialize user ID to save in the session
 passport.serializeUser(function (user, cb) {
   cb(null, user.id);
 });
 
+// Deserialize user from session ID to user object
 passport.deserializeUser(async function (id, cb) {
   try {
     const user = await User.findById(id);
@@ -299,7 +356,10 @@ passport.deserializeUser(async function (id, cb) {
   }
 });
 
-// ------------------ 404 ------------------ //
+// ----------------------------------------------------------- //
+// ----------------------- 404 ERROR ------------------------- //
+// ----------------------------------------------------------- //
+// Catch-all route for handling 404 (Page Not Found) errors
 app.use((req, res) => {
   res.status(404).render("./pages/404", {
     page: "404",
@@ -309,6 +369,7 @@ app.use((req, res) => {
   });
 });
 
+// Start the Express server
 app.listen(port, () => {
   console.log(
     `Your application "PonderPad" is listening at http://localhost:${port}`
