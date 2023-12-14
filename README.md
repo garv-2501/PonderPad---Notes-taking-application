@@ -1,5 +1,8 @@
 # PonderPad
 
+This project is by Garv Singh Rawlot
+Student No. 33748785
+
 PonderPad is a note-taking application designed for simplicity and efficiency. Built with Node.js, Express, MongoDB, and EJS, it integrates Google OAuth for authentication and provides a user-friendly interface for note management.
 
 ## Folder Structure
