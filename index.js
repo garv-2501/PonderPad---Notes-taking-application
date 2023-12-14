@@ -9,6 +9,7 @@ const passport = require("passport");
 const MongoStore = require("connect-mongo");
 const methodOverride = require("method-override");
 const mongoose = require("mongoose");
+const https = require("https");
 
 // Import database configuration and models
 const connectDB = require("./server/config/database");
@@ -117,6 +118,46 @@ app.get("/about", async (req, res) => {
       quote: null,
     });
   }
+});
+
+// API Route to push out all quotes
+app.get("/api/quotes", (req, res) => {
+  const keyword = req.query.keyword || "happiness"; // Default to 'happiness' if no keyword is provided
+  const apiKey = process.env.QUOTEAPI; // Load API key from .env file
+  const url = `https://api.api-ninjas.com/v1/quotes?category=${keyword}`;
+
+  https
+    .get(
+      url,
+      {
+        headers: {
+          "X-Api-Key": apiKey,
+        },
+      },
+      (response) => {
+        let data = "";
+
+        // A chunk of data has been received.
+        response.on("data", (chunk) => {
+          data += chunk;
+        });
+
+        // The whole response has been received. Print out the result.
+        response.on("end", () => {
+          try {
+            const quotes = JSON.parse(data);
+            res.json(quotes);
+          } catch (error) {
+            console.error("Error parsing response:", error);
+            res.status(500).json({ error: "Error fetching quotes" });
+          }
+        });
+      }
+    )
+    .on("error", (error) => {
+      console.error("Error making HTTP request:", error);
+      res.status(500).json({ error: "Error fetching quotes" });
+    });
 });
 
 // Routes for Dashboard
