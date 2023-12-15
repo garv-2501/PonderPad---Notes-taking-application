@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "it is a note taking app for my databases module final project",
   "main": "index.js",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-css": "postcss public/styles.css -o public/build/tailwind.css",
