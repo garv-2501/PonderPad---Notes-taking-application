@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "description": "it is a note taking app for my databases module final project",
   "main": "index.js",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-css": "postcss public/styles.css -o public/build/tailwind.css",
     "watch-css": "postcss public/styles.css -o public/build/tailwind.css --watch",
-    "start": "nodemon index.js"
+    "start": "node index.js"
   },
   "author": "garv singh rawlot",
   "license": "ISC",
