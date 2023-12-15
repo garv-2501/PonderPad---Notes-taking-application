@@ -55,13 +55,13 @@ app.use(methodOverride("_method"));
 connectDB();
 
 // Middleware to check login status
-isLoggedIn = (req, res, next) => {
+function isLoggedIn(req, res, next) {
   if (req.user) {
     next();
   } else {
     return res.status(401).send("You must be logged in to view this page");
   }
-};
+}
 
 // ----------------------------------------------------------- //
 // ------------------------- ROUTES -------------------------- //
